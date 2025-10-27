@@ -1,7 +1,33 @@
+import sys
 import serial
+import serial.tools.list_ports
 import tkinter as tk
 
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+# -------------------------
+# Serielle Verbindung
+# -------------------------
+
+def find_serial_port():
+    """Finde automatisch einen seriellen Port für Arduino."""
+    if sys.platform.startswith('win'):
+        ports = list(serial.tools.list_ports.comports())
+        if not ports:
+            raise Exception("Kein serieller Port gefunden!")
+        # Nimm den ersten verfügbaren USB/Arduino-Port
+        return ports[0].device
+    else:
+        # Standard Linux/macOS Port
+        return '/dev/ttyACM0'
+
+try:
+    ser = serial.Serial(find_serial_port(), 9600, timeout=1)
+except Exception as e:
+    print(f"Fehler beim Öffnen des Ports: {e}")
+    sys.exit(1)
+
+# -------------------------
+# Motorsteuerung
+# -------------------------
 
 def send_speed(value):
     ser.write(f"SPEED {value}\n".encode())
@@ -14,10 +40,14 @@ def stop_motor():
 
 def read_cycle():
     while ser.in_waiting:
-        line = ser.readline().decode().strip()
+        line = ser.readline().decode(errors='ignore').strip()
         if line.startswith("CYCLE"):
             cycle_var.set(f"Zykluszeit: {line.split()[1]} us")
     root.after(100, read_cycle)
+
+# -------------------------
+# GUI
+# -------------------------
 
 root = tk.Tk()
 root.title("28BYJ-48 Motor GUI")
