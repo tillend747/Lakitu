@@ -1,0 +1,31 @@
+import socket
+import time
+
+LIDAR_IP = "192.168.10.32"
+CONTROL_PORT = 2112
+DATA_PORT = 2111
+RUN_DURATION = 10  # Sekunden
+
+# 1️ Lidar in Run-Modus versetzen
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as ctrl_sock:
+    ctrl_sock.connect((LIDAR_IP, CONTROL_PORT))
+    run_cmd = b'\x02sRN Run\x03'  # Run-Befehl (je nach Firmware evtl. sMN Run 1)
+    ctrl_sock.send(run_cmd)
+    resp = ctrl_sock.recv(1024)
+    print("SOPAS Antwort (Control):", resp)
+
+# 2️Rohdaten empfangen und ausgeben
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as data_sock:
+    data_sock.connect((LIDAR_IP, DATA_PORT))
+    print(f"Empfange Daten für {RUN_DURATION} Sekunden...")
+    start_time = time.time()
+    
+    while time.time() - start_time < RUN_DURATION:
+        data = data_sock.recv(1024)
+        if data:
+            # Einfach als Hex ausgeben
+            print(data.hex())
+        else:
+            time.sleep(0.01)
+
+print("Messung beendet.")
