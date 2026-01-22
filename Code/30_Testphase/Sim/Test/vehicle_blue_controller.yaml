@@ -1,0 +1,27 @@
+# vehicle_blue_controller.yaml
+controller_manager:
+  ros__parameters:
+    update_rate: 30 # Aktualisierungsrate des Controllers in Hz
+
+vehicle_blue_diff_drive_controller:
+  ros__parameters:
+    # Hier verwenden wir den Standard Differential Drive Controller von ROS 2 Control
+    type: diff_drive_controller/DiffDriveController
+    publish_rate: 50.0
+
+    # Rad- und Chassis-Geometrie
+    left_wheel_names: ['left_wheel_joint']
+    right_wheel_names: ['right_wheel_joint']
+    wheel_separation: 1.2 # Abstand der Räder voneinander (0.6 + 0.6 = 1.2, basierend auf den Posen in der SDF)
+    wheel_radius: 0.4     # Radius der Räder (basierend auf der Zylinder-Definition)
+    
+    # ROS 2 Topics für Steuerung und Rückmeldung
+    publish_wheel_tf: true
+    publish_cmd: true
+    publish_odom_tf: true
+    odom_frame_id: odom
+    base_frame_id: chassis # Muss dem Namen des Chassis-Links entsprechen
+
+    # Topic, auf dem die Befehle erwartet werden
+    cmd_vel_timeout: 0.5
+    allow_integration_in_host_library: true

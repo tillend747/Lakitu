@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Stepper Steuerung</title>
+<style>
+body { font-family: sans-serif; text-align: center; margin-top: 50px; background: #fafafa; }
+h2 { margin-bottom: 20px; }
+input[type=range] { width: 80%; }
+button { margin: 10px; padding: 10px 25px; font-size: 16px; border-radius: 10px; }
+</style>
+</head>
+<body>
+<h2>Stepper Motor Steuerung</h2>
+<p>Geschwindigkeit: <span id="speedVal">0</span>%</p>
+<input type="range" id="speedSlider" min="0" max="100" value="0">
+<br>
+<button onclick="startMotor()">Start</button>
+<button onclick="stopMotor()">Stop</button>
+
+<script>
+const slider = document.getElementById("speedSlider");
+const speedVal = document.getElementById("speedVal");
+
+slider.oninput = () => {
+  speedVal.textContent = slider.value;
+  fetch('/speed', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({speed: parseInt(slider.value)})
+  });
+};
+
+function startMotor() {
+  fetch('/start', {method: 'POST'});
+}
+function stopMotor() {
+  fetch('/stop', {method: 'POST'});
+}
+</script>
+</body>
+</html>
